@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hemo package &mdash; hemo 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="hemo 1.0.0 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hemo
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">hemo package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-hemo.net_prep">hemo.net_prep module</a></li>
+<li><a class="reference internal" href="#module-hemo.sims">hemo.sims module</a></li>
+<li><a class="reference internal" href="#module-hemo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hemo</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>hemo package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/hemo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hemo-package">
+<h1>hemo package<a class="headerlink" href="#hemo-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-hemo.net_prep">
+<span id="hemo-net-prep-module"></span><h2>hemo.net_prep module<a class="headerlink" href="#module-hemo.net_prep" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hemo.net_prep.assign_edge_indices">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">assign_edge_indices</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.assign_edge_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns an index to each edge, this will be its index in the ODE system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.assign_matrix_indices">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">assign_matrix_indices</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.assign_matrix_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign matrix col/row index for each internal node</p>
+<p>Must be run before set_pressures</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.calculate_lengths">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">calculate_lengths</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.calculate_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the length of each edge of the graph.</p>
+<p>The graph G already has a node attribute &#8216;pos&#8217; : [x, y, z], this calculates the distances between nodes on each
+edge and assigns it to an edge attribute &#8216;length&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.prep_net_for_sims">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">prep_net_for_sims</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.prep_net_for_sims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes network already embedded in R3, prepares for simulation.</p>
+<p>Each edge should already have &#8216;length&#8217;, &#8216;radius&#8217; assigned as desired.
+Calculates pressure at each node, inverse transit times, does some cleanup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure, embedded in R3</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Graph Structure, ready to use for sims</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">G</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.redirect">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">redirect</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.redirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse direction of edges which have negative flow.</p>
+<p>After determining flows through the network, the initial directions of edges may be opposite the direction
+of blood flow. This method reverses the direction of those edges so that all inverse transit times are positive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.set_inverse_transit_times">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">set_inverse_transit_times</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.set_inverse_transit_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures inverse transit times have been calculated.</p>
+<p>Must be run after set_pressures, assigns &#8216;inverse_transit_time&#8217; attribute to each edge.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.set_parent_indices">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">set_parent_indices</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.set_parent_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up parent edge indices for each edge</p>
+<p>Must be run after assign_edge_indices, so that each edge has &#8216;idx&#8217; attribute assigned.
+Needed for conservation of mass term in ODE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.set_pressures">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">set_pressures</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.set_pressures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that all nodes have their pressure computed.</p>
+<p>Each edge already has attributes &#8216;length&#8217;, &#8216;radius&#8217;, &#8216;capacitance&#8217;, &#8216;mat_idx&#8217; assigned to them.
+Using Hagen-Pousielle equation and Kirchoff&#8217;s current law, calculates pressure at each internal node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hemo.net_prep.set_volumes">
+<code class="descclassname">hemo.net_prep.</code><code class="descname">set_volumes</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.net_prep.set_volumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates volume of each edge</p>
+<p>The graph G already has edge attributes &#8216;length&#8217; and &#8216;radius&#8217;, this calculates the volume of each node. Must be run
+prior to creating system source for conservation of mass term in ODE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>G</strong> &#8211; Graph Structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-hemo.sims">
+<span id="hemo-sims-module"></span><h2>hemo.sims module<a class="headerlink" href="#module-hemo.sims" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hemo.sims.create_source">
+<code class="descclassname">hemo.sims.</code><code class="descname">create_source</code><span class="sig-paren">(</span><em>G</em>, <em>*</em>, <em>v0=5</em>, <em>B=65</em>, <em>k2=0.35</em>, <em>K=34.2</em>, <em>k3=0.0005</em>, <em>k4=0</em>, <em>filename='sys.py'</em><span class="sig-paren">)</span><a class="headerlink" href="#hemo.sims.create_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a system source file.</p>
+<p>Creates a system source file to be imported and used for numerical integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> &#8211; The graph structure</li>
+<li><strong>v0</strong> (<em>float</em>) &#8211; The upstream concentration</li>
+<li><strong>B</strong> (<em>float</em>) &#8211; Vascular volume ratio (default 65)</li>
+<li><strong>k2</strong> (<em>float</em>) &#8211; Maximal transport rate (default 0.35)</li>
+<li><strong>K</strong> (<em>float</em>) &#8211; Concentration at which transport is half maximal (default 34.2)</li>
+<li><strong>k3</strong> (<em>float</em>) &#8211; Clearance rate of drug default 5.0e-4)</li>
+<li><strong>filename</strong> (<em>str</em>) &#8211; What to name the file containing dy/dt</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-hemo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hemo" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, William Langhoff.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
