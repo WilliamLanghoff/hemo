@@ -1,0 +1,10 @@
+import numpy as np
+
+def dydt(y, t):
+
+    v = y[:$n]
+    w = y[$n:$n2]
+
+    dv = np.zeros($n)
+    dw = np.zeros($n)
+
