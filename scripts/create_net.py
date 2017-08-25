@@ -282,9 +282,10 @@ def plot_3d_network(G, title=None, filename=None):
 
 
 def create_network(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=1):
-    """Create the graph structure.
+    """Create an example graph structure.
 
-    Calls several functions to create the graph.
+    Creates an integer lattice embedded in a cubic centimeter. Perturbs radii and sorts them such that central vessels
+    are smaller than external vessels. Source and sink on opposite corners of graph.
 
     Parameters
     ----------
@@ -364,5 +365,107 @@ def create_network(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=1)
     return G
 
 
+def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=1):
+    delta = 1 / (N + 1)
+    viscosity = 3.5
+
+    G = nx.DiGraph()
+    G.graph['N'] = N
+    G.graph['delta'] = delta
+
+    # First add the nodes of the graph
+    vd = {}
+    counter = 0
+    for x_idx in range(N):
+        for y_idx in range(N):
+            for z_idx in range(N):
+                vd[(x_idx, y_idx, z_idx)] = counter
+                G.add_node(counter, pos=[delta * (x_idx + 1), delta * (y_idx + 1), delta * (z_idx + 1)],
+                           ntype='internal')
+                counter += 1
+
+    # Next add the edges
+    for x_idx in range(N):
+        for y_idx in range(N):
+            for z_idx in range(N):
+                el = []
+                if x_idx < N - 1:
+                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx + 1, y_idx, z_idx)]))
+                if y_idx < N - 1:
+                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx, y_idx + 1, z_idx)]))
+                if z_idx < N - 1:
+                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx, y_idx, z_idx + 1)]))
+                G.add_edges_from(el)
+
+    # Sources and sinks are alternating nodes on opposite faces
+    for x_idx in range(N):
+        if x_idx % 2 == 1:
+            continue
+        for y_idx in range(N):
+            if y_idx % 2 == 1:
+                continue
+            G.node[vd[x_idx, y_idx, 0]]['ntype'] = 'source'
+            G.node[vd[x_idx, y_idx, N-1]]['ntype'] = 'sink'
+
+            # assign lengths
+        net_prep.calculate_lengths(G)
+
+        # assign initial radius uniformly
+        total_len = np.sum([G[src][sink]['length'] for src, sink in G.edges()])
+        r = np.sqrt((vascular_fraction * space_volume) / (np.pi * total_len))
+        for src, sink in G.edges():
+            G[src][sink]['radius'] = r
+
+        # # perturb radii to further break symmetry
+        # for j in range(radii_iters):
+        #     for i in range(len(G.edges())):
+        #         perturb_radii(G, i)
+        #         net_prep.set_volumes(G)
+        # make_switches(G)
+
+        net_prep.prep_net_for_sims(G)
+
+        return G
+
+
+def get_Wt(G, times, soln, liposomes=False):
+    """Compute W(t) for an entire network
+
+    Parameters
+    ----------
+    G
+        Graph Structure
+    times : array_like
+        Array of time values for simulation
+    soln : array_like
+        Solution - the output from odeint
+
+    Returns
+    -------
+    Wt : array_like
+        Array of W(t) values corresponding to the times passed to the function
+    """
+    n_edges = len(G.edges())
+    Wt = np.zeros_like(times)
+    for src, sink in G.edges():
+        if liposomes:
+            Wt += 65 * G[src][sink]['volume'] * soln[:, 2*n_edges + G[src][sink]['idx']]
+        else:
+            Wt += 65 * G[src][sink]['volume'] * soln[:, n_edges + G[src][sink]['idx']]
+    return Wt
+
 if __name__ == '__main__':
-    G = create_network(4)
+    import hemo.sims as sims
+    import scipy.integrate
+    G = create_network_multiple_sources_and_sinks(5)
+    sims.create_source(G)
+    import system
+    times = np.linspace(0, 3600, 3600+1)
+    y0 = np.ones(len(G.edges())) * 5.0
+    y0 = np.concatenate([y0, np.zeros_like(y0)])
+    soln = scipy.integrate.odeint(system.dydt, y0, times)
+    wt = get_Wt(G, times, soln)
+    plt.plot(times/60, wt)
+    plt.xlabel('time (min)')
+    plt.ylabel('W(t)')
+    plt.show()

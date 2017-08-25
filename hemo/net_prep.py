@@ -1,6 +1,8 @@
 import numpy as np
 import networkx as nx
 
+# TODO: All of this code was written for a network with a single src/sink, need to generalize to arbitrarily many
+
 
 def prep_net_for_sims(G):
     """Takes network already embedded in R3, prepares for simulation.

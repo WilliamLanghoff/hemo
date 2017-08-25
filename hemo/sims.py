@@ -2,8 +2,7 @@ import numpy as np
 from string import Template
 
 
-
-def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="sys.py"):
+def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="system.py"):
     """Creates a system source file.
 
 
@@ -24,7 +23,7 @@ def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="
     k3 : float
         Clearance rate of drug default 5.0e-4)
     filename : str
-        What to name the file containing dy/dt
+        What to name the file containing dydt
 
     Returns
     -------
@@ -35,7 +34,7 @@ def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="
     parms['n'] = len(G.edges())
     parms['n2'] = 2 * parms['n']
 
-    with open('data/basic_template', 'r') as template_file:
+    with open('c:/users/bill/documents/python/hemo/hemo/data/basic_template', 'r') as template_file:
         s = Template(template_file.read())
 
     with open(filename, 'w') as file:

@@ -1,3 +1,1 @@
-# pyhemodyn
-
-TODO README
+All code here is still in development. Probably not a good idea to use anything yet.
