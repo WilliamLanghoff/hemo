@@ -1,6 +1,7 @@
 import hemo.net_prep as net_prep
 import hemo.sims as sims
 import scipy.integrate
+import scipy.special
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -59,33 +60,6 @@ def surface_area(G):
 
 
 
-def perturb_nodes(G):
-    """Perturbs the nodes of the graph, each within a radius of delta/4
-
-    Parameters
-    ----------
-    G
-        Graph Structure
-
-    Returns
-    -------
-
-    """
-    max_dist = 0.125 * G.graph['delta']
-    for n in G.nodes():
-        # if n in (0, 1, 21, 22):
-        # continue
-        u = np.random.randn(3)
-        u /= np.linalg.norm(u)
-        u *= max_dist
-        newpos = G.node[n]['pos'] + u
-        if (0 <= newpos[0] <= 1) and (0 <= newpos[1] <= 1) and (0 <= newpos[2] <= 1):
-            G.node[n]['pos'] = newpos
-        else:
-            print('Invalid Node Perturbation')
-
-
-
 
 def get_total_volume(G):
     """Calculates total vasculature volume
@@ -106,65 +80,6 @@ def get_total_volume(G):
         total_volume += (G[src][sink]['radius'] ** 2) * G[src][sink]['length'] * np.pi
     return total_volume
 
-
-def perturb_radii(G, e1):
-    """Perturbs the radius of a given edge, and some of its neighbors, so that the total volume remains fixed.
-
-    Parameters
-    ----------
-    G
-        Graph Structure
-    e1
-        Edge which will have its radius perturbed
-
-    Returns
-    -------
-
-    """
-    initial_volume = get_total_volume(G)
-    src1, sink1 = G.edges()[e1]
-
-    if len(G.successors(sink1)) == 0:
-        # edge is incident to exit node
-        sink2 = src1
-        src2 = np.random.choice(G.predecessors(src1))
-
-    elif len(G.predecessors(src1)) == 0:
-        # edge is incident to entrance node
-        src2 = sink1
-        sink2 = np.random.choice(G.successors(sink1))
-
-    else:
-        src2 = sink1
-        sink2 = np.random.choice(G.successors(sink1))
-
-    if G[src1][sink1]['center_dist'] > G[src2][sink2]['center_dist']:
-        src1, src2 = src2, src1
-        sink1, sink2 = sink2, sink1
-
-    r1 = G[src1][sink1]['radius']
-    L1 = G[src1][sink1]['length']
-    r2 = G[src2][sink2]['radius']
-    L2 = G[src2][sink2]['length']
-
-    delta_r1 = np.random.rand()*0.5 * (r1 + r2) / 2
-    v1 = L1 * r1 ** 2
-    v2 = L2 * r2 ** 2
-
-
-    while L1 * (r1 + delta_r1) ** 2 >= v1 + v2:
-        delta_r1 *= 0.9
-    vv = L1 * (r1 + delta_r1) ** 2
-    new_rad_2 = np.sqrt((v1 + v2 - vv) / L2)
-    new_rad_1 = r1 + delta_r1
-
-    if new_rad_2 >= 10e-6 and new_rad_2 >= 10e-6:
-        G[src2][sink2]['radius'] = new_rad_2
-        G[src1][sink1]['radius'] = new_rad_1
-        # else:
-        # print('invalid perturbation, radii too small.')
-    final_volume = get_total_volume(G)
-    assert np.abs(initial_volume - final_volume) < 10e-14
 
 
 def make_switches(G):
@@ -222,91 +137,8 @@ def central_difference(G, edge):
     return abs(d1 - d2)
 
 
-def create_network(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=1):
-    """Create an example graph structure.
 
-    Creates an integer lattice embedded in a cubic centimeter. Perturbs radii and sorts them such that central vessels
-    are smaller than external vessels. Source and sink on opposite corners of graph.
-
-    Parameters
-    ----------
-    N : int
-        Integer lattice # of subdivisions
-    space_volume : float
-        Volume of embedding space
-    vascular_fraction : float
-        fraction of embedding space which is vasculature
-    radii_iters : int
-        number of times to iterate through radii perturbation
-
-    Returns
-    -------
-    G
-        The graph structure
-
-    """
-    delta = 1 / (N + 1)
-    viscosity = 3.5
-
-    G = nx.DiGraph()
-    G.graph['N'] = N
-    G.graph['delta'] = delta
-
-    # First add the nodes of the graph
-    vd = {}
-    counter = 0
-    for x_idx in range(N):
-        for y_idx in range(N):
-            for z_idx in range(N):
-                vd[(x_idx, y_idx, z_idx)] = counter
-                G.add_node(counter, pos=[delta * (x_idx + 1), delta * (y_idx + 1), delta * (z_idx + 1)],
-                           ntype='internal')
-                counter += 1
-
-    # Next add the edges
-    for x_idx in range(N):
-        for y_idx in range(N):
-            for z_idx in range(N):
-                el = []
-                if x_idx < N - 1:
-                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx + 1, y_idx, z_idx)]))
-                if y_idx < N - 1:
-                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx, y_idx + 1, z_idx)]))
-                if z_idx < N - 1:
-                    el.append((vd[(x_idx, y_idx, z_idx)], vd[(x_idx, y_idx, z_idx + 1)]))
-                G.add_edges_from(el)
-
-    # Choose source and sink on opposite corners
-    G.node[vd[(0, 0, 0)]]['ntype'] = 'source'
-    G.node[vd[(N - 1, N - 1, N - 1)]]['ntype'] = 'sink'
-    G.graph['source'] = vd[(0, 0, 0)]
-    G.graph['sink'] = vd[(N - 1, N - 1, N - 1)]
-
-    # Perturb the nodes to break symmetry
-    # perturb_nodes(G)
-
-    # assign lengths
-    net_prep.calculate_lengths(G)
-
-    # assign initial radius uniformly
-    total_len = np.sum([G[src][sink]['length'] for src, sink in G.edges()])
-    r = np.sqrt((vascular_fraction * space_volume) / (np.pi * total_len))
-    for src, sink in G.edges():
-        G[src][sink]['radius'] = r
-
-    # perturb radii to further break symmetry
-    for j in range(radii_iters):
-        for i in range(len(G.edges())):
-            perturb_radii(G, i)
-            # net_prep.set_volumes(G)
-    make_switches(G)
-
-    net_prep.prep_net_for_sims(G)
-
-    return G
-
-
-def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=10):
+def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=2):
     delta = 1 / (N + 1)
     viscosity = 3.5
 
@@ -357,18 +189,36 @@ def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fra
 
     assign_distances_from_source_and_sink_nodes(G)
 
-    # assign initial radius uniformly
-    total_len = np.sum([G[src][sink]['length'] for src, sink in G.edges()])
-    r = np.sqrt((vascular_fraction * space_volume) / (np.pi * total_len))
-    for src, sink in G.edges():
-        G[src][sink]['radius'] = r
+    # # assign initial radius uniformly
+    # total_len = np.sum([G[src][sink]['length'] for src, sink in G.edges()])
+    # r = np.sqrt((vascular_fraction * space_volume) / (np.pi * total_len))
+    # for src, sink in G.edges():
+    #     G[src][sink]['radius'] = r
+    #
+    # # perturb radii to further break symmetry
+    # for j in range(radii_iters):
+    #     for i in range(len(G.edges())):
+    #         perturb_radii(G, i)
+    #         # net_prep.set_volumes(G)
+    # # make_switches(G)
 
-    # perturb radii to further break symmetry
-    for j in range(radii_iters):
-        for i in range(len(G.edges())):
-            perturb_radii(G, i)
-            # net_prep.set_volumes(G)
-    # make_switches(G)
+    def scale_parm(n):
+        return (5 * (n+1) * np.sqrt(90 * np.pi)/(10**4))**-1
+
+    alpha = 5
+    beta = scale_parm(N)
+    for src, sink in G.edges():
+        G[src][sink]['radius'] = 10**-4 * np.random.gamma(alpha, beta)
+
+    for _ in range(radii_iters):
+        for src1, sink1 in G.edges():
+            for src2, sink2 in G.edges():
+                if src1 == src2:
+                    continue
+                if G[src1][sink1]['center_dist'] > G[src2][sink2]['center_dist'] and G[src1][sink1]['radius'] < G[src2][sink2]['radius']:
+                    temp_radius = G[src1][sink1]['radius']
+                    G[src1][sink1]['radius'] = G[src2][sink2]['radius']
+                    G[src2][sink2]['radius'] = temp_radius
 
     net_prep.prep_net_for_sims(G)
 
@@ -471,7 +321,10 @@ def run_example_sim(n):
 
 
 if __name__ == '__main__':
-    G = create_network_multiple_sources_and_sinks(5)
-    radii = [G[src][sink]['radius'] for src, sink in G.edges()]
-    plt.hist(radii)
-    plt.show()
+    for n in [4,5,6,7,8,9,10]:
+        G = create_network_multiple_sources_and_sinks(n)
+        nx.write_gpickle(G, 'G_%i.gpickle' % n)
+        radii = [G[src][sink]['radius'] for src, sink in G.edges()]
+        plt.hist(radii)
+        plt.title('Radii for G_%i' % n)
+        plt.show()

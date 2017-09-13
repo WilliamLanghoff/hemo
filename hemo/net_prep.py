@@ -1,7 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import networkx as nx
+from pathlib import Path
 
-# TODO: All of this code was written for a network with a single src/sink, need to generalize to arbitrarily many
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def prep_net_for_sims(G):
@@ -22,7 +24,7 @@ def prep_net_for_sims(G):
     """
 
 
-    assign_matrix_indices(G)
+
     set_pressures(G)
     set_inverse_transit_times(G)
     redirect(G)
@@ -54,27 +56,7 @@ def calculate_lengths(G):
         G[src][sink]['length'] = np.linalg.norm(v)
 
 
-def assign_matrix_indices(G):
-    """Assign matrix col/row index for each internal node
 
-    Must be run before set_pressures
-
-    Parameters
-    ----------
-    G
-        Graph Structure
-
-    Returns
-    -------
-
-    """
-    # TODO move inside of set_pressures?
-    m_iter = 0
-    for node in G.nodes():
-        if G.node[node]['ntype'] == 'internal':
-            G.node[node]['mat_idx'] = m_iter
-            m_iter += 1
-    G.graph['n_internal'] = m_iter
 
 
 def set_volumes(G):
@@ -150,6 +132,29 @@ def set_pressures(G):
     -------
 
     """
+
+    def assign_matrix_indices(G):
+        """Assign matrix col/row index for each internal node
+
+        Must be run before set_pressures
+
+        Parameters
+        ----------
+        G
+            Graph Structure
+
+        Returns
+        -------
+
+        """
+        m_iter = 0
+        for node in G.nodes():
+            if G.node[node]['ntype'] == 'internal':
+                G.node[node]['mat_idx'] = m_iter
+                m_iter += 1
+        G.graph['n_internal'] = m_iter
+
+    assign_matrix_indices(G)
     viscosity = 3.5
 
     def set_capacitance(g):
@@ -263,4 +268,72 @@ def set_inverse_transit_times(G):
         G[src][sink]['inverse_transit_time'] = dp * (G[src][sink]['radius'] ** 2) / (
             8 * viscosity * G[src][sink]['length'] ** 2)
 
+
+
+def plot_3d_network(G, title=None, filename=None):
+    """Creates 3d plot of the network
+
+    Parameters
+    ----------
+    G
+        Graph Structure
+    title : str
+        Title for the plot
+    filename : str
+        filename for the plot. If specified, plot is saved
+
+    Returns
+    -------
+
+    """
+
+    def plot_nodes(ax, nodes, color):
+
+        xs = [G.node[n]['pos'][0] for n in nodes]
+        ys = [G.node[n]['pos'][1] for n in nodes]
+        zs = [G.node[n]['pos'][2] for n in nodes]
+        ax.scatter(xs, ys, zs, c=color)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+
+
+    sources, internal, sinks = [], [], []
+
+    for n in G.nodes():
+        if G.node[n]['ntype'] == 'source':
+            sources.append(n)
+        elif G.node[n]['ntype'] == 'sink':
+            sinks.append(n)
+        elif G.node[n]['ntype'] == 'internal':
+            internal.append(n)
+
+    plot_nodes(ax, sources, 'g')
+    plot_nodes(ax, sinks, 'b')
+    plot_nodes(ax, internal, 'k')
+
+    for src, sink in G.edges():
+        xs = [G.node[src]['pos'][0], G.node[sink]['pos'][0]]
+        ys = [G.node[src]['pos'][1], G.node[sink]['pos'][1]]
+        zs = [G.node[src]['pos'][2], G.node[sink]['pos'][2]]
+        ax.plot3D(xs, ys, zs, 'r')
+
+    if title is None:
+        ax.set_title('Network, N=%i' % G.graph['N'])
+    else:
+        ax.set_title(title)
+    ax.set_frame_on(False)
+    ax.set_axis_off()
+    ax.grid(False)
+    ax.set_autoscale_on(True)
+    ax.set_autoscalez_on(True)
+    ax.set_zticklabels([])
+    ax.set_zticks([])
+    ax.w_zaxis.line.set_lw(0.)
+
+    if filename is not None:
+        path = Path('data/img')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig('%s.pdf' % filename)
 
