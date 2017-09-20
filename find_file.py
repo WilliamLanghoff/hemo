@@ -12,6 +12,7 @@ def find_filepath(filename):
     Returns
     -------
         Path like string for specified file"""
+    
     for root, dirs, files in os.walk(os.getcwd(), False):
         for name in files:
             if filename == name :
@@ -33,6 +34,7 @@ def find_all_filepaths(filename):
     -------
     ret: list
         List of all strings which contain the parameter filename as a substring"""
+    
     ret = []
     for root, dirs, files in os.walk(os.getcwd(), False):
         for name in files:
