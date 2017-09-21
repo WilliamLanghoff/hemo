@@ -324,8 +324,8 @@ if __name__ == '__main__':
     #         # plt.show()
 
 
-    for n in [4,5,6,7,8,9,10,11]:
-        k = 0
+    for k in [4,5,6,7,8,9,10]:
+        n = 11
         start = time.time()
         G = create_network_multiple_sources_and_sinks(n)
         end = time.time()

@@ -7,7 +7,6 @@ import system
 import importlib
 
 
-
 def get_wt(G, y):
     wt = 0
     n_edges = len(G.edges())
@@ -16,35 +15,41 @@ def get_wt(G, y):
     return wt
 
 
-# cons =({'type': 'ineq', 'fun': lambda })
-
 radius, steady_state = [], []
-for k in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]:
-    for n in [4,5,6,7,8,9,10]:
+for k in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
+    for n in [4, 5, 6, 7, 8, 9, 10]:
         G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i_%i.gpickle' % (n, k))
         sims.create_source(G)
         importlib.reload(system)
+
+
         def obj(y):
             return system.dydt(y, 1)
 
+
         y0 = np.zeros(2 * len(G.edges()))
         y = scipy.optimize.root(obj, y0, method='krylov')
-        radius.append(np.mean([10**4 * G[src][sink]['radius'] for src, sink in G.edges()]))
+        radius.append(np.mean([10 ** 4 * G[src][sink]['radius'] for src, sink in G.edges()]))
         steady_state.append(get_wt(G, y['x']))
 
-radius, steady_state = [], []
-for k in [0, 1,2,3]:
+for k in [0, 1, 2, 3]:
     n = 11
     G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i_%i.gpickle' % (n, k))
     sims.create_source(G)
     importlib.reload(system)
+
+
     def obj(y):
         return system.dydt(y, 1)
 
+
     y0 = np.zeros(2 * len(G.edges()))
     y = scipy.optimize.root(obj, y0, method='krylov')
-    radius.append(np.mean([10**4 * G[src][sink]['radius'] for src, sink in G.edges()]))
+    radius.append(np.mean([10 ** 4 * G[src][sink]['radius'] for src, sink in G.edges()]))
     steady_state.append(get_wt(G, y['x']))
+
+np.save('steady_states', steady_state)
+np.save('radii', radius)
 
 plt.scatter(radius, steady_state)
 plt.ylim([0, 0.0030])
