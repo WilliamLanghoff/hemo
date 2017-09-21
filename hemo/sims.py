@@ -2,7 +2,7 @@ import numpy as np
 from string import Template
 
 
-def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="system.py"):
+def create_source(G, *, v0=5, B=30, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="system.py"):
     """Creates a system source file.
 
 
@@ -15,7 +15,7 @@ def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="
     v0 : float
         The upstream concentration
     B : float
-        Vascular volume ratio (default 65)
+        Vascular volume ratio (default 30)
     k2 : float
         Maximal transport rate (default 0.35)
     K : float
@@ -48,7 +48,7 @@ def create_source(G, *, v0=5, B=65, k2=0.35, K=34.2, k3=5.0e-4, k4=0, filename="
             dv = "    dv[%d] = -%.18f*v[%d] - (%.18f * v[%d])/(%.18f + v[%d])" % (
             id, f, id, parms['k2'], id, parms['K'], id)
             dw = "    dw[%d] = + (%.18f * v[%d])/(%.18f + v[%d]) - %.18f*w[%d]" % (
-            id, parms['k2'] / parms['B'], id, parms['K'], id, parms['k3'], id)
+            id, parms['k2'] / parms['B'], id, parms['K'], id, parms['B'] *parms['k3'], id)
 
             if G.node[src]['ntype'] == 'source':
                 dv += " + %.18f * np.exp(-%.18f * t)" % (f * parms['v0'], parms['k4'])

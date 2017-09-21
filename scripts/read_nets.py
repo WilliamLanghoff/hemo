@@ -79,7 +79,7 @@ def plot_3d_network_radii_heatmap(G, title=None, filename=None):
         ax.plot3D(xs, ys, zs, color=colorVal)
 
     plot_nodes(ax, sources, 'b')
-    plot_nodes(ax, sinks, 'r')
+    plot_nodes(ax, sinks, 'mean_radii')
     plot_nodes(ax, internal, 'k')
 
 
@@ -105,7 +105,17 @@ def plot_3d_network_radii_heatmap(G, title=None, filename=None):
         plt.savefig('%s.pdf' % filename)
 
 
+def read_volumetric_flow(n):
+    inflow = 0
+    G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i.gpickle' % n)
+    for src, sink in G.edges():
+        if G.node[src]['ntype'] == 'source':
+            inflow += G[src][sink]['volume'] * G[src][sink]['inverse_transit_time']
+    return inflow
+
 if __name__ == '__main__':
-    for n in [6]:
-        G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i.gpickle' % n)
-        plot_3d_network_radii_heatmap(G)
+    flows = []
+    for n in [4,5,6,7,8,9,10]:
+        flows.append(read_volumetric_flow(n))
+    plt.plot(flows)
+    plt.show()

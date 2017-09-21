@@ -23,8 +23,6 @@ def prep_net_for_sims(G):
         Graph Structure, ready to use for sims
     """
 
-
-
     set_pressures(G)
     set_inverse_transit_times(G)
     redirect(G)
@@ -121,7 +119,7 @@ def set_pressures(G):
     """Ensures that all nodes have their pressure computed.
 
     Each edge already has attributes 'length', 'radius', 'capacitance', 'mat_idx' assigned to them.
-    Using Hagen-Pousielle equation and Kirchoff's current law, calculates pressure at each internal node.
+    Using Hagen-Pousielle equation and Kirchoff'mean_steady_states current law, calculates pressure at each internal node.
 
     Parameters
     ----------
@@ -155,7 +153,7 @@ def set_pressures(G):
         G.graph['n_internal'] = m_iter
 
     assign_matrix_indices(G)
-    viscosity = 3.5
+    viscosity = 3.5e-3
 
     def set_capacitance(g):
         for src2, sink2 in g.edges():
@@ -191,9 +189,9 @@ def set_pressures(G):
         if G.node[node1]['ntype'] == 'internal':
             for otherNode in G.nodes():
                 if G.node[otherNode]['ntype'] == 'source' and G.has_edge(otherNode, node1):
-                    b[G.node[node1]['mat_idx']] = p0 * G[otherNode][node1]['capacitance']
+                    b[G.node[node1]['mat_idx']] += p0 * G[otherNode][node1]['capacitance']
                 elif G.node[otherNode]['ntype'] == 'sink' and G.has_edge(node1, otherNode):
-                    b[G.node[node1]['mat_idx']] = pN * G[node1][otherNode]['capacitance']
+                    b[G.node[node1]['mat_idx']] += pN * G[node1][otherNode]['capacitance']
     # print(b)
 
     p = np.linalg.solve(A, b)
@@ -262,7 +260,7 @@ def set_inverse_transit_times(G):
     -------
 
     """
-    viscosity = 3.5
+    viscosity = 3.5e-3
     for src, sink in G.edges():
         dp = G.node[src]['pressure'] - G.node[sink]['pressure']
         G[src][sink]['inverse_transit_time'] = dp * (G[src][sink]['radius'] ** 2) / (
@@ -317,7 +315,7 @@ def plot_3d_network(G, title=None, filename=None):
         xs = [G.node[src]['pos'][0], G.node[sink]['pos'][0]]
         ys = [G.node[src]['pos'][1], G.node[sink]['pos'][1]]
         zs = [G.node[src]['pos'][2], G.node[sink]['pos'][2]]
-        ax.plot3D(xs, ys, zs, 'r')
+        ax.plot3D(xs, ys, zs, 'mean_radii')
 
     if title is None:
         ax.set_title('Network, N=%i' % G.graph['N'])

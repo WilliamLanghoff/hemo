@@ -7,9 +7,10 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import system
 import importlib
+import time
 
 
-viscosity = 3.5
+viscosity = 3.5e-3
 
 
 def total_resistance(G):
@@ -138,9 +139,8 @@ def central_difference(G, edge):
 
 
 
-def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=2):
+def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=2, symmetric=False):
     delta = 1 / (N + 1)
-    viscosity = 3.5
 
     G = nx.DiGraph()
     G.graph['N'] = N
@@ -187,38 +187,30 @@ def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fra
     # assign lengths
     net_prep.calculate_lengths(G)
 
-    assign_distances_from_source_and_sink_nodes(G)
+    if not symmetric:
+        assign_distances_from_source_and_sink_nodes(G)
+        def scale_parm(n):
+            return (5 * (n+1) * np.sqrt(90 * np.pi))**-1
 
-    # # assign initial radius uniformly
-    # total_len = np.sum([G[src][sink]['length'] for src, sink in G.edges()])
-    # r = np.sqrt((vascular_fraction * space_volume) / (np.pi * total_len))
-    # for src, sink in G.edges():
-    #     G[src][sink]['radius'] = r
-    #
-    # # perturb radii to further break symmetry
-    # for j in range(radii_iters):
-    #     for i in range(len(G.edges())):
-    #         perturb_radii(G, i)
-    #         # net_prep.set_volumes(G)
-    # # make_switches(G)
+        alpha = 5
+        beta = scale_parm(N)
 
-    def scale_parm(n):
-        return (5 * (n+1) * np.sqrt(90 * np.pi)/(10**4))**-1
+        for src, sink in G.edges():
+            G[src][sink]['radius'] = np.random.gamma(alpha, beta)
 
-    alpha = 5
-    beta = scale_parm(N)
-    for src, sink in G.edges():
-        G[src][sink]['radius'] = 10**-4 * np.random.gamma(alpha, beta)
+        for _ in range(radii_iters):
+            for src1, sink1 in G.edges():
+                for src2, sink2 in G.edges():
+                    if src1 == src2:
+                        continue
+                    if G[src1][sink1]['center_dist'] > G[src2][sink2]['center_dist'] and G[src1][sink1]['radius'] < G[src2][sink2]['radius']:
+                        temp_radius = G[src1][sink1]['radius']
+                        G[src1][sink1]['radius'] = G[src2][sink2]['radius']
+                        G[src2][sink2]['radius'] = temp_radius
 
-    for _ in range(radii_iters):
-        for src1, sink1 in G.edges():
-            for src2, sink2 in G.edges():
-                if src1 == src2:
-                    continue
-                if G[src1][sink1]['center_dist'] > G[src2][sink2]['center_dist'] and G[src1][sink1]['radius'] < G[src2][sink2]['radius']:
-                    temp_radius = G[src1][sink1]['radius']
-                    G[src1][sink1]['radius'] = G[src2][sink2]['radius']
-                    G[src2][sink2]['radius'] = temp_radius
+    elif symmetric:
+        for src, sink in G.edges():
+            G[src][sink]['radius'] = 1/((N+1) * np.sqrt(90*np.pi))
 
     net_prep.prep_net_for_sims(G)
 
@@ -321,10 +313,25 @@ def run_example_sim(n):
 
 
 if __name__ == '__main__':
-    for n in [4,5,6,7,8,9,10]:
+    # for k in [11,12,13,14,15]:
+    #     for n in [4,5,6,7,8,9,10]:
+    #         print('Creating G_%i #%i' % (n, k))
+    #         G = create_network_multiple_sources_and_sinks(n)
+    #         nx.write_gpickle(G, 'G_%i_%i.gpickle' % (n, k))
+    #         # radii = [G[src][sink]['radius'] for src, sink in G.edges()]
+    #         # plt.hist(radii)
+    #         # plt.title('Radii for G_%i' % n)
+    #         # plt.show()
+
+
+    for n in [4,5,6,7,8,9,10,11]:
+        k = 0
+        start = time.time()
         G = create_network_multiple_sources_and_sinks(n)
-        nx.write_gpickle(G, 'G_%i.gpickle' % n)
-        radii = [G[src][sink]['radius'] for src, sink in G.edges()]
-        plt.hist(radii)
-        plt.title('Radii for G_%i' % n)
-        plt.show()
+        end = time.time()
+        print('Created %i - %i in %.01f seconds.' % (n, k, end-start))
+        nx.write_gpickle(G, 'C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i_%i.gpickle' % (n, k))
+    # radii = [G[src][sink]['radius'] for src, sink in G.edges()]
+    # plt.hist(radii)
+    # plt.title('Radii for G_%i' % n)
+    # plt.show()

@@ -306,7 +306,7 @@ def create_network(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=1)
     return G
 
 
-def create_network_multiple_sources_and_sinks(N, *, space_volume=1, vascular_fraction=0.015, radii_iters=10):
+def create_network_multiple_sources_and_sinks(N, *, space_volume=1, radii_iters=10):
     delta = 1 / (N + 1)
     viscosity = 3.5
 
