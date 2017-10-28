@@ -78,10 +78,10 @@ if __name__ == '__main__':
     mean_steady_states = []
 
     all_radii, all_steady_states = [], []
-    for n in [4, 5, 6, 7, 8, 9, 10]:
+    for n in [11,12]:
         rr = []
         ss = []
-        for k in [1,2,3,4,5,6,7,8,9,10]:
+        for k in [4,5,6,7,8,9,10]:
             times = np.linspace(0, 450, 450 + 1)
             G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks/G_%i_%i.gpickle' %(n,k))
             soln = np.load('C:/Users/Bill/Documents/Python/hemo/hemo/data/sims/soln_%i_%i.np.npy' % (n, k))

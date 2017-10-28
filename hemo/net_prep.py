@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import networkx as nx
 from pathlib import Path
 
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def prep_net_for_sims(G):
+def prep_net_for_sims(G, dp):
     """Takes network already embedded in R3, prepares for simulation.
 
     Each edge should already have 'length', 'radius' assigned as desired.
@@ -16,6 +17,8 @@ def prep_net_for_sims(G):
     ----------
     G
         Graph Structure, embedded in R3
+    dp : Numeric
+        Pressure difference across the network
 
     Returns
     -------
@@ -23,9 +26,9 @@ def prep_net_for_sims(G):
         Graph Structure, ready to use for sims
     """
 
-    set_pressures(G)
+    set_pressures(G, dp)
     set_inverse_transit_times(G)
-    redirect(G)
+    redirect(G, dp)
 
     assign_edge_indices(G)
     set_volumes(G)
@@ -54,9 +57,6 @@ def calculate_lengths(G):
         G[src][sink]['length'] = np.linalg.norm(v)
 
 
-
-
-
 def set_volumes(G):
     """Calculates volume of each edge
 
@@ -76,7 +76,7 @@ def set_volumes(G):
         G[src][sink]['volume'] = np.pi * G[src][sink]['radius'] ** 2 * G[src][sink]['length']
 
 
-def redirect(G):
+def redirect(G, dp):
     """Reverse direction of edges which have negative flow.
 
     After determining flows through the network, the initial directions of edges may be opposite the direction
@@ -111,20 +111,22 @@ def redirect(G):
                 # print('switched!')
 
         if made_any_switch:
-            set_pressures(G)
+            set_pressures(G, dp)
             set_inverse_transit_times(G)
 
 
-def set_pressures(G):
+def set_pressures(G, dp):
     """Ensures that all nodes have their pressure computed.
 
     Each edge already has attributes 'length', 'radius', 'capacitance', 'mat_idx' assigned to them.
-    Using Hagen-Pousielle equation and Kirchoff'mean_steady_states current law, calculates pressure at each internal node.
+    Using Hagen-Pousielle equation and Kirchoff's current law, calculates pressure at each internal node.
 
     Parameters
     ----------
     G
         Graph Structure
+    dp : Numeric
+        Pressure difference across overall network
 
     Returns
     -------
@@ -153,12 +155,11 @@ def set_pressures(G):
         G.graph['n_internal'] = m_iter
 
     assign_matrix_indices(G)
-    viscosity = 3.5e-3
 
     def set_capacitance(g):
         for src2, sink2 in g.edges():
             g[src2][sink2]['capacitance'] = (np.pi * g[src2][sink2]['radius'] ** 4) / (
-                8 * viscosity * g[src2][sink2]['length'])
+                8 * eff_viscosity(g[src2][sink2]['radius']) * g[src2][sink2]['length'])
 
     set_capacitance(G)
 
@@ -179,9 +180,17 @@ def set_pressures(G):
                 A[src_mat_idx, sink_mat_idx] = -G[src][sink]['capacitance']
                 A[sink_mat_idx, src_mat_idx] = -G[src][sink]['capacitance']
 
-    # print(A)
+    # Show a picture of the matrix highlighting where it is not zero
+    # B = np.zeros_like(A)
+    # r, c = np.shape(B)
+    # for i in range(r):
+    #     for j in range(c):
+    #         if A[i,j] != 0:
+    #             B[i,j] = 1
+    # plt.matshow(B, cmap=cm.gray)
+    # plt.show()
 
-    p0 = 25 * 133.322387415
+    p0 = dp * 133.322387415
     pN = 0
 
     b = np.zeros(G.graph['n_internal'])
@@ -260,12 +269,23 @@ def set_inverse_transit_times(G):
     -------
 
     """
-    viscosity = 3.5e-3
     for src, sink in G.edges():
         dp = G.node[src]['pressure'] - G.node[sink]['pressure']
         G[src][sink]['inverse_transit_time'] = dp * (G[src][sink]['radius'] ** 2) / (
-            8 * viscosity * G[src][sink]['length'] ** 2)
+            8 * eff_viscosity(G[src][sink]['radius']) * G[src][sink]['length'] ** 2)
 
+
+def eff_viscosity(r):
+    Hd = 0.45
+    d = 2*r * 10**4
+
+    beta = 1/(1 + 10**-11 * d)
+    gamma = (0.8 + np.exp(-0.075*d))*(-1 + beta) + beta
+
+    eta_045 = 220 * np.exp(-1.3*d) + 3.2 - 2.44 * np.exp(-0.06 * (d ** 0.645))
+
+    eta_vitro = 1 + (eta_045 - 1) * ((1 - Hd)**gamma - 1)/((1 - 0.45)**gamma - 1)
+    return eta_vitro * 10**-3
 
 
 def plot_3d_network(G, title=None, filename=None):
@@ -294,8 +314,6 @@ def plot_3d_network(G, title=None, filename=None):
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-
-
 
     sources, internal, sinks = [], [], []
 
@@ -334,4 +352,3 @@ def plot_3d_network(G, title=None, filename=None):
         path = Path('data/img')
         path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig('%s.pdf' % filename)
-

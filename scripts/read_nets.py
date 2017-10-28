@@ -38,9 +38,9 @@ def plot_3d_network_radii_heatmap(G, title=None, filename=None):
 
     def plot_nodes(ax, nodes, color):
 
-        xs = [G.node[n]['pos'][0] for n in nodes]
+        zs = [G.node[n]['pos'][0] for n in nodes]
         ys = [G.node[n]['pos'][1] for n in nodes]
-        zs = [G.node[n]['pos'][2] for n in nodes]
+        xs = [G.node[n]['pos'][2] for n in nodes]
         ax.scatter(xs, ys, zs, c=color)
 
     fig = plt.figure()
@@ -72,14 +72,14 @@ def plot_3d_network_radii_heatmap(G, title=None, filename=None):
 
 
     for src, sink in G.edges():
-        xs = [G.node[src]['pos'][0], G.node[sink]['pos'][0]]
+        zs = [G.node[src]['pos'][0], G.node[sink]['pos'][0]]
         ys = [G.node[src]['pos'][1], G.node[sink]['pos'][1]]
-        zs = [G.node[src]['pos'][2], G.node[sink]['pos'][2]]
+        xs = [G.node[src]['pos'][2], G.node[sink]['pos'][2]]
         colorVal = scalarMap.to_rgba(G[src][sink]['radius'])
         ax.plot3D(xs, ys, zs, color=colorVal)
 
     plot_nodes(ax, sources, 'b')
-    plot_nodes(ax, sinks, 'mean_radii')
+    plot_nodes(ax, sinks, 'r')
     plot_nodes(ax, internal, 'k')
 
 
@@ -114,8 +114,5 @@ def read_volumetric_flow(n):
     return inflow
 
 if __name__ == '__main__':
-    flows = []
-    for n in [4,5,6,7,8,9,10]:
-        flows.append(read_volumetric_flow(n))
-    plt.plot(flows)
-    plt.show()
+    G = nx.read_gpickle('C:/Users/Bill/Documents/Python/hemo/hemo/data/networks100/G_7_8.gpickle')
+    plot_3d_network_radii_heatmap(G)
