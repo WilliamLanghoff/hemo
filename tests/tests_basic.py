@@ -17,7 +17,7 @@ class graphTests(unittest.TestCase):
         initial_volume = cnet.get_total_volume(self.G)
         # cnet.perturb_all_radii(self.G) # Will perturbing radii on the same graph create a graph with different radii?
         perturbed_volume = cnet.get_total_volume(self.G)
-        self.assertEqual(initial_volume, perturbed_volume)
+        self.assertLessEqual(abs(initial_volume - perturbed_volume), 10**(-14))
 
     def test_transit_times(self):
         """Tests that all transit times are positive"""
